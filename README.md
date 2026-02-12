@@ -53,8 +53,8 @@ The strategy follows a strictly isolated pipeline to ensure data integrity:
 
 | Metric | Strategy | Benchmark (SPY) |
 | :--- | :--- | :--- |
-| **Total Return** | **+29.09%** | +21.58% |
-| **Alpha** | **+7.51%** | - |
+| **Total Return** | **+28.12%** | +21.58% |
+| **Alpha** | **+6.54%** | - |
 | **Regime** | Multi-Asset | Equity Only |
 
 *Disclaimer: Results do not account for transaction costs or slippage. Past performance is not indicative of future results.*
