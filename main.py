@@ -11,7 +11,9 @@ from sklearn.preprocessing import normalize
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import datetime
-
+import random
+import numpy as np
+import torch
 
 
 
@@ -49,6 +51,9 @@ ETFS = [
     'RSP', 'MTUM', 'VLUE', 'USMV', 'QUAL', 'IJR', 'IJH', 'IWB', 'IWR', 'SCHD', 'VYM', 'VIG'
 ]
 
+
+
+
 TICKERS = list(set(STOCKS + BONDS + COMMODITIES + FOREX + ETFS))
 START_DATE = '2023-01-01'
 END_DATE = datetime.datetime.now().strftime('%Y-%m-%d')
@@ -60,8 +65,10 @@ NHEAD = 4
 NUM_LAYERS = 1
 DROPOUT = 0.1
 BATCH_SIZE = 128
-EPOCHS = 6
+EPOCHS = 15
 TARGET_CLUSTERS = 20
+
+
 
 
 if torch.cuda.is_available():
@@ -77,6 +84,24 @@ else:
 
 
 
+
+def set_deterministic(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+    if torch.backends.mps.is_available():
+        torch.mps.manual_seed(seed)
+
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+
+
+    
 def calculate_technical_indicators(df):
     # RSI Calculation
     delta = df['Adj Close'].diff()
@@ -100,6 +125,7 @@ def calculate_technical_indicators(df):
     df['Volatility'] = df['Log_Ret_Raw'].rolling(window=20).std()
     
     return df
+
 
 
 
@@ -172,6 +198,7 @@ def get_feature_data(tickers, start, end):
 
 
 
+
 def prepare_tensor_dataset(features_dict, seq_len):
 
     all_sequences = []
@@ -191,6 +218,7 @@ def prepare_tensor_dataset(features_dict, seq_len):
     
     # Autoencoder: Input = Target
     return TensorDataset(tensor_data, tensor_data)
+
 
 
 
@@ -222,6 +250,8 @@ def create_model_components(feature_size, d_model, nhead, num_layers, dropout):
 
 
 
+
+
 def functional_forward_pass(src, input_net, pos_embedding, transformer, decoder_net):
 
     # Input projection + Positional Encoding
@@ -237,6 +267,8 @@ def functional_forward_pass(src, input_net, pos_embedding, transformer, decoder_
     recon = decoder_net(memory)
     
     return recon, embedding
+
+
 
 
 
@@ -283,6 +315,10 @@ def execute_training(dataloader, components, epochs):
             loop.set_description(f"Epoch {epoch+1}/{epochs}")
             loop.set_postfix(loss=loss.item())
 
+
+
+
+    
 def extract_embeddings(features_dict, components, seq_len):
     input_net, pos_embedding, transformer, decoder_net = components
     
@@ -308,6 +344,8 @@ def extract_embeddings(features_dict, components, seq_len):
 
 
 
+
+    
 def execute_portfolio_selection(embeddings_df, start_date, end_date):
     print("Fetching raw data for performance evaluation...")
     tickers = list(embeddings_df.index)
@@ -370,7 +408,10 @@ def execute_portfolio_selection(embeddings_df, start_date, end_date):
 
 
 
+
 if __name__ == "__main__":
+
+    set_deterministic(42)
     
     print("Phase 1: Training on Historical Data (2023-2024)...")
     train_features, _ = get_feature_data(TICKERS, '2023-01-01', '2024-12-31')
@@ -396,6 +437,9 @@ if __name__ == "__main__":
     print(f"AI Selected Top Picks: {selected_tickers}")
     
     print("\nPhase 3: Validating Performance in 2025 (Out-of-Sample)...")
+
+
+
     
     def get_price_series_helper(df_all, ticker):
         try:
