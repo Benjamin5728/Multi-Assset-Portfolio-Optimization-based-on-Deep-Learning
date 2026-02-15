@@ -5,15 +5,17 @@ This project implements a sophisticated **quantitative equity strategy** focused
 
 Unlike traditional multi-asset portfolios that often dilute returns by over-allocating to "safe havens" (Bonds/Cash), this strategy is designed for **pure equity exposure**, utilizing a **Rolling Walk-Forward** framework to aggressively target high risk-adjusted return opportunities in the stock market.
 
-## 💡 Inspiration & Design Philosophy
+## 💡 Inspiration & Design Philosophy: The Quest for the "Holy Grail"
 
-The strategy's evolution was driven by a critical insight into the limitations of standard "Multi-Asset" deep learning models:
+The genesis of this project lies in **Ray Dalio’s "Holy Grail" of Investing**: the idea that combining 10–15 uncorrelated return streams can dramatically reduce risk without sacrificing return. 
 
-### 1. Why Pure Equity? (The "Multi-Asset" Dilemma)
-In earlier iterations, mixing asset classes (Stocks, Bonds, Forex, Commodities) revealed a fatal flaw in single-model architectures: **The "Safe Haven" Bias.**
-* **The Problem:** Financial instruments have vastly different statistical properties. Short-term Treasuries (like BIL/SHV) possess near-zero volatility, artificially inflating their Sharpe Ratios compared to equities.
-* **The Consequence:** A "Max-Sharpe" optimizer, when presented with mixed assets, lazily allocates 90%+ capital to cash equivalents to minimize variance, resulting in a flat "dead fish" equity curve that misses all equity bull runs.
-* **The Solution:** To build a strategy that actually captures growth, we restricted the universe to **350+ liquid S&P 500 stocks**. This forces the AI to hunt for Alpha *within* the equity risk premium, rather than hiding in risk-free assets.
+My initial goal was to build a true **Multi-Asset** deep learning model that dynamically allocates across Equities, Bonds, Commodities, and Forex, learning non-linear correlations that traditional linear models miss.
+
+### 🛑 The "Multi-Asset" Dilemma & The Pivot
+However, during the development of the multi-asset prototype, I encountered a persistent **Deep Learning "Safe Haven" Bias**:
+* **The Observation:** When presented with a mixed universe (High-Vol Stocks vs. Low-Vol Treasuries) and optimized for Sharpe Ratio, the Transformer model consistently learned to "game" the objective function.
+* **The Problem:** The model discovered that the easiest way to maximize risk-adjusted returns was not to predict stock alpha, but to **allocate 90%+ capital to cash equivalents (e.g., BIL/SHV)**. This resulted in a theoretically high-Sharpe but practically useless "dead fish" equity curve that missed all growth opportunities.
+* **The Pivot:** Acknowledging this limitation in current single-model architectures, I pivoted to a **Pure Equity Strategy**. By restricting the universe to **350+ liquid S&P 500 stocks**, I force the AI to hunt for diversification and Alpha *within* the equity risk premium, effectively searching for uncorrelated drivers (Cluster Regimes) inside the stock market itself.
 
 ### 2. Deep Learning as a "Feature Extractor"
 Inspired by **NLP (Natural Language Processing)**, this project treats daily price action not as random walks, but as "sequences" with latent grammar.
@@ -84,9 +86,9 @@ The following chart illustrates the strategy's cumulative performance during the
 | **Top Sector Bets** | Tech, Healthcare, Industrials | Diversified |
 
 ## 🛠️ Future Roadmap (Towards True Multi-Asset)
-To re-introduce Multi-Asset capabilities without the "Cash Trap," future versions will implement:
-* **Hierarchical Risk Parity (HRP):** To balance risk contributions across asset classes rather than Sharpe maximization.
-* **Regime-Switching Models:** Different sub-models for Equities, Bonds, and Commodities, aggregated by a top-level meta-learner.
+To re-introduce Multi-Asset capabilities without the "Cash Trap," future versions will explore:
+* **Hierarchical Risk Parity (HRP):** To allocate risk budgets across asset classes rather than maximizing Sharpe, preventing capital from flooding into low-volatility assets.
+* **Regime-Switching Meta-Models:** Using separate sub-models for Equities, Bonds, and Commodities, aggregated by a top-level learner to enforce diversification constraints.
 
 ## ⚠️ Disclaimer
 This project is a research prototype for **AI-driven quantitative finance**. It is not financial advice. Past performance in backtests does not guarantee future live results.
